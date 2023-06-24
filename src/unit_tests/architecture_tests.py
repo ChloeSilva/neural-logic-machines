@@ -1,6 +1,5 @@
 import unittest
 import numpy as np
-import collections
 import neural_logic_machines.architecture as architecture
 
 class TestArchitecture(unittest.TestCase):
@@ -9,23 +8,23 @@ class TestArchitecture(unittest.TestCase):
 
     def test_permute_unary(self):
         # Given
-        input = np.array([1, 0, 0, 0])
+        input = np.array([[1, 0, 0, 0]])
 
         # When
-        output = self.arch.permute(input)
+        output = self.arch.permute_predicate(input)
 
         # Then
         self.assertTrue((output == np.array([[1, 0, 0, 0]])).all())
 
     def test_permute_binary(self):
         # Given
-        input = np.array([[0, 0, 1, 0],
-                          [0, 0, 0, 0],
-                          [0, 1, 0, 0],
-                          [0, 0, 0, 1]])
+        input = np.array([[[0, 0, 1, 0],
+                           [0, 0, 0, 0],
+                           [0, 1, 0, 0],
+                           [0, 0, 0, 1]]])
         
         # When
-        output = self.arch.permute(input)
+        output = self.arch.permute_predicate(input)
 
         # Then
         self.assertTrue(
@@ -49,7 +48,7 @@ class TestArchitecture(unittest.TestCase):
 
         # Then
         self.assertTrue(self.same_np_arrays(output, [
-            np.array([[]]),
+            np.array([[1, 1, 1, 1]]),
             np.array([[0, 0, 1, 0]]),
             np.array([[0, 1, 0, 0]]),
             np.array([[0, 0, 1, 0],
@@ -79,6 +78,30 @@ class TestArchitecture(unittest.TestCase):
             np.array([[[0, 0], [0, 0]],
                       [[0, 1], [1, 0]],
                       [[1, 1], [1, 1]]])]))
+        
+    def test_bool_logic(self):
+        # Given
+        heads = np.array([[[0, 1, 0],
+                           [0, 0, 1],
+                           [0, 0, 0]],
+                          [[0, 0, 0],
+                           [0, 0, 0],
+                           [0, 0, 0]]])
+        
+        weights = np.array([0,0,1] + [0]*29)
+
+        # When
+        output = self.arch.apply([(heads, weights)])
+
+        # Then
+        self.assertTrue(
+            (output ==
+             np.array([[[[0, 1, 0],
+                         [1, 0, 1],
+                         [0, 1, 0]],
+                        [[0, 0, 0],
+                         [0, 0, 0],
+                         [0, 0, 0]]]])).all())
 
     def same_np_arrays(self, x, y):
         if len(x) != len(y):
