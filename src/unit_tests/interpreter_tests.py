@@ -16,10 +16,12 @@ class TestInterpreter(unittest.TestCase):
 			predicate_names = [[], [], ['edge', 'connected']]
 		)
 
+		solved_problem = problem.SolvedProblem(prob, weights)
+
 		threshold = 1
 
 		# When
-		result = self.sut.weights_to_predicates(weights, prob, threshold)
+		result = self.sut.weights_to_predicates(solved_problem, threshold)
 
 		# Then
 		self.assertEqual(result, ['edge(X0, X1) :- edge(X1, X0).'])

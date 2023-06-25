@@ -5,7 +5,10 @@ class Interpreter():
 
     arch = architecture.Architecture()
 
-    def weights_to_predicates(self, weights, problem, threshold):
+    def weights_to_predicates(self, solved_problem, threshold):
+        problem = solved_problem.problem
+        weights = solved_problem.solution
+
         clauses = []
         for i in range(len(problem.max_predicates)):
             perm = self.arch.generate_permutations(i)

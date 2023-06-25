@@ -8,23 +8,23 @@ class TestArchitecture(unittest.TestCase):
 
     def test_permute_unary(self):
         # Given
-        input = np.array([[1, 0, 0, 0]])
+        predicates = np.array([[1, 0, 0, 0]])
 
         # When
-        result = self.sut.permute_predicate(input)
+        result = self.sut.permute_predicate(predicates)
 
         # Then
         self.assertTrue((result == np.array([[1, 0, 0, 0]])).all())
 
     def test_permute_binary(self):
         # Given
-        input = np.array([[[0, 0, 1, 0],
+        predicates = np.array([[[0, 0, 1, 0],
                            [0, 0, 0, 0],
                            [0, 1, 0, 0],
                            [0, 0, 0, 1]]])
         
         # When
-        result = self.sut.permute_predicate(input)
+        result = self.sut.permute_predicate(predicates)
 
         # Then
         self.assertTrue(
@@ -40,11 +40,11 @@ class TestArchitecture(unittest.TestCase):
         
     def test_select_body_2_unary_predicates(self):
         # Given
-        input = np.array([[0, 0, 1, 0],
+        predicates = np.array([[0, 0, 1, 0],
                           [0, 1, 0, 0]])
 
         # When
-        result = self.sut.select_body(input)
+        result = self.sut.select_body(predicates)
 
         # Then
         self.assertTrue(self.same_np_arrays(result, [
@@ -56,12 +56,12 @@ class TestArchitecture(unittest.TestCase):
 
     def test_select_body_3_binary_predicates(self):
         # Given
-        input = np.array([[[0, 0], [0, 0]],
+        predicates = np.array([[[0, 0], [0, 0]],
                           [[0, 1], [1, 0]],
                           [[1, 1], [1, 1]]])
         
         # When
-        result = self.sut.select_body(input)
+        result = self.sut.select_body(predicates)
 
         # Then
         self.assertTrue(self.same_np_arrays(result, [
@@ -79,30 +79,75 @@ class TestArchitecture(unittest.TestCase):
                       [[0, 1], [1, 0]],
                       [[1, 1], [1, 1]]])]))
         
-    def test_bool_logic(self):
+    def test_expand(self):
         # Given
-        heads = np.array([[[0, 1, 0],
-                           [0, 0, 1],
-                           [0, 0, 0]],
-                          [[0, 0, 0],
-                           [0, 0, 0],
-                           [0, 0, 0]]])
-        
-        weights = np.array([0,0,1] + [0]*29)
+        predicates = np.array([[0, 1, 0, 1], [0, 0, 1, 1]])
+        num_objects = 4
 
         # When
-        result = self.sut.apply([(heads, weights)])
+        result = self.sut.expand(predicates, num_objects)
 
         # Then
         self.assertTrue(
             (result ==
-             np.array([[[[0, 1, 0],
-                         [1, 0, 1],
-                         [0, 1, 0]],
-                        [[0, 0, 0],
-                         [0, 0, 0],
-                         [0, 0, 0]]]])).all())
+             np.array([[[0, 1, 0, 1],
+                        [0, 1, 0, 1],
+                        [0, 1, 0, 1],
+                        [0, 1, 0, 1]],
+                       [[0, 0, 1, 1],
+                        [0, 0, 1, 1],
+                        [0, 0, 1, 1],
+                        [0, 0, 1, 1]]])).all())
+        
+    def test_reduce(self):
+        # Given
+        predicates = np.array([[[1, 0, 1, 0],
+                                [0, 0, 1, 1],
+                                [0, 0, 1, 0],
+                                [0, 0, 1, 1]],
+                               [[0, 0, 0, 0],
+                                [0, 0, 0, 0],
+                                [0, 0, 0, 0],
+                                [0, 0, 0, 0]]])
 
+        # When
+        result = self.sut.reduce(predicates)
+
+        # Then
+        self.assertTrue((result ==
+             np.array([[1, 0, 1, 1], 
+                       [0, 0, 0, 0],
+                       [0, 0, 1, 0], 
+                       [0, 0, 0, 0]])).all())
+        
+    def test_bool_logic(self):
+        # Given
+        premise = [np.array([0]),
+                   np.array([[1, 1, 1]]),
+                   np.array([[[0, 1, 0],
+                              [0, 0, 1],
+                              [0, 0, 0]],
+                             [[0, 0, 0],
+                              [0, 0, 0],
+                              [0, 0, 0]]])]
+        
+        weights = [np.array([0]*24),
+                   np.array([0]*384),
+                   np.array([0]*64 + [0]*4 + [1] + [0]*59 + [0]*64)]
+
+        # When
+        result = self.sut.apply(weights, premise)
+
+        # Then
+        self.assertTrue((result[0] == np.array([0])).all())
+        self.assertTrue((result[1] == np.array([[1, 1, 1]])).all())
+        self.assertTrue((result[2] == np.array([[[0, 1, 0],
+                                                 [1, 0, 1],
+                                                 [0, 1, 0]],
+                                                [[0, 0, 0],
+                                                 [0, 0, 0],
+                                                 [0, 0, 0]]])).all())
+        
     def same_np_arrays(self, x, y):
         if len(x) != len(y):
             return False
