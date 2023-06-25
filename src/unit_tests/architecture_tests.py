@@ -4,17 +4,17 @@ import neural_logic_machines.architecture as architecture
 
 class TestArchitecture(unittest.TestCase):
 
-    arch = architecture.Architecture()
+    sut = architecture.Architecture()
 
     def test_permute_unary(self):
         # Given
         input = np.array([[1, 0, 0, 0]])
 
         # When
-        output = self.arch.permute_predicate(input)
+        result = self.sut.permute_predicate(input)
 
         # Then
-        self.assertTrue((output == np.array([[1, 0, 0, 0]])).all())
+        self.assertTrue((result == np.array([[1, 0, 0, 0]])).all())
 
     def test_permute_binary(self):
         # Given
@@ -24,11 +24,11 @@ class TestArchitecture(unittest.TestCase):
                            [0, 0, 0, 1]]])
         
         # When
-        output = self.arch.permute_predicate(input)
+        result = self.sut.permute_predicate(input)
 
         # Then
         self.assertTrue(
-            (output ==
+            (result ==
              np.array([[[0, 0, 1, 0],
                         [0, 0, 0, 0],
                         [0, 1, 0, 0],
@@ -44,10 +44,10 @@ class TestArchitecture(unittest.TestCase):
                           [0, 1, 0, 0]])
 
         # When
-        output = self.arch.select_body(input)
+        result = self.sut.select_body(input)
 
         # Then
-        self.assertTrue(self.same_np_arrays(output, [
+        self.assertTrue(self.same_np_arrays(result, [
             np.array([[1, 1, 1, 1]]),
             np.array([[0, 0, 1, 0]]),
             np.array([[0, 1, 0, 0]]),
@@ -61,10 +61,10 @@ class TestArchitecture(unittest.TestCase):
                           [[1, 1], [1, 1]]])
         
         # When
-        output = self.arch.select_body(input)
+        result = self.sut.select_body(input)
 
         # Then
-        self.assertTrue(self.same_np_arrays(output, [
+        self.assertTrue(self.same_np_arrays(result, [
             np.array([[[]]]),
             np.array([[[0, 0], [0, 0]]]),
             np.array([[[0, 1], [1, 0]]]),
@@ -91,11 +91,11 @@ class TestArchitecture(unittest.TestCase):
         weights = np.array([0,0,1] + [0]*29)
 
         # When
-        output = self.arch.apply([(heads, weights)])
+        result = self.sut.apply([(heads, weights)])
 
         # Then
         self.assertTrue(
-            (output ==
+            (result ==
              np.array([[[[0, 1, 0],
                          [1, 0, 1],
                          [0, 1, 0]],
