@@ -107,7 +107,7 @@ class TestArchitecture(unittest.TestCase):
                                 [0, 0, 1, 1]],
                                [[0, 0, 0, 0],
                                 [0, 0, 0, 0],
-                                [0, 0, 0, 0],
+                                [0, 1, 0, 0],
                                 [0, 0, 0, 0]]])
 
         # When
@@ -116,11 +116,9 @@ class TestArchitecture(unittest.TestCase):
         # Then
         self.assertTrue((result ==
              np.array([[1, 0, 1, 1], 
-                       [0, 0, 0, 0],
-                       [0, 0, 1, 0], 
-                       [0, 0, 0, 0]])).all())
+                       [0, 1, 0, 0]])).all())
         
-    def test_bool_logic(self):
+    def test_bool_logic_simple(self):
         # Given
         premise = [np.array([0]),
                    np.array([[1, 1, 1]]),
@@ -131,9 +129,9 @@ class TestArchitecture(unittest.TestCase):
                               [0, 0, 0],
                               [0, 0, 0]]])]
         
-        weights = [np.array([0]*24),
-                   np.array([0]*384),
-                   np.array([0]*64 + [0]*4 + [1] + [0]*59 + [0]*64)]
+        weights = [np.array([0]*4),
+                   np.array([0]*16),
+                   np.array([0, 0, 0, 0, 1] + [0]*59 + [0]*64)]
 
         # When
         result = self.sut.apply(weights, premise)
@@ -147,7 +145,51 @@ class TestArchitecture(unittest.TestCase):
                                                 [[0, 0, 0],
                                                  [0, 0, 0],
                                                  [0, 0, 0]]])).all())
-        
+    
+    def test_bool_logic_complex(self):
+        # Given
+        premise = [np.array([]),
+                   np.array([[0, 0, 0, 1],
+                             [0, 0, 1, 0]]),
+                   np.array([[[0, 0, 0, 0],
+                              [0, 0, 0, 0],
+                              [0, 0, 0, 1],
+                              [0, 0, 1, 0]],
+                             [[0, 1, 0, 0],
+                              [0, 0, 0, 0],
+                              [0, 0, 0, 0],
+                              [0, 0, 0, 0]],
+                             [[0, 0, 0, 0],
+                              [1, 0, 0, 0],
+                              [0, 0, 0, 0],
+                              [0, 0, 0, 0]]])]
+
+        weights = np.array([[], [0]*64, [0]*3072], dtype=object)
+        weights[1][4] = 1
+        weights[1][37] = 1
+        weights[2][1038] = 1
+        weights[2][2077] = 1
+
+        # When
+        result = self.sut.apply(weights, premise)
+
+        # Then
+        self.assertTrue((result[0] == np.array([])).all())
+        self.assertTrue((result[1] == np.array([[0, 1, 0, 1],
+                                                [1, 0, 1, 0]])).all())
+        self.assertTrue((result[2] == np.array([[[0, 0, 0, 0],
+                                                 [0, 0, 0, 0],
+                                                 [0, 0, 0, 1],
+                                                 [0, 0, 1, 0]],
+                                                [[0, 1, 0, 0],
+                                                 [0, 0, 0, 0],
+                                                 [0, 0, 0, 1],
+                                                 [0, 0, 0, 0]],
+                                                [[0, 0, 0, 0],
+                                                 [1, 0, 0, 0],
+                                                 [0, 0, 0, 0],
+                                                 [0, 0, 1, 0]]])).all())
+
     def same_np_arrays(self, x, y):
         if len(x) != len(y):
             return False

@@ -27,8 +27,10 @@ class Architecture():
         return np.reshape(np.tile(preds, tile_shape), final_shape)
 
     def reduce(self, preds):
-        # also consider along axis -1
-        return np.concatenate([preds.max(1), preds.min(1)])
+        # return np.concatenate([preds.max(1), preds.min(1)])
+        # forall is not required for full generality and
+        # may create a lot more groundings
+        return preds.max(1)
     
     def apply(self, weights, premise):
         output = []
@@ -41,9 +43,11 @@ class Architecture():
                      for i in range(1, len(premise) - 1)]
         max_arity = [np.concatenate((self.expand(premise[-2], num_objects), premise[-1]))]
         predicates = nullary + mid_arity + max_arity
-
-        # each iteration is for an different arity of predicates
+        # each iteration is for a different arity of predicates
         for i in range(len(weights)):
+            if len(weights[i]) == 0:
+                output.append(np.array([]))
+                continue
             # calculate possible permutations of arguments
             perm = self.permute_predicate(predicates[i])
             # choose possible clause bodies
@@ -54,17 +58,8 @@ class Architecture():
             weighted = np.stack([w*b for (w,b) in zip(weights[i], cycle(bodies_conj))])
             # sums each clause with the same head (capped at 1)
             # TODO: here is where we can add an interesting actiavtion function
-            summed = np.minimum(np.sum(np.stack(np.array_split(weighted, len(predicates[i]))), 1), 1)
-            # remove expanded predicates from output
-            if i > 0:
-                summed = summed[num_premises[i-1]:]
-                predicates[i] = predicates[i][num_premises[i-1]:]
-            # remove reduced predicates from output
-            if i < len(weights) - 1:
-                summed = summed[:-num_premises[i+1]*2]
-                predicates[i] = predicates[i][:-num_premises[i+1]*2]
-
-            # add i-ary predicates to output
-            output.append(np.maximum.reduce([summed, predicates[i]]))
+            summed = np.minimum(np.sum(np.stack(np.array_split(weighted, num_premises[i])), 1), 1)
+            # sum with facts and add to output
+            output.append(np.maximum.reduce([summed, premise[i]]))
         
         return output
