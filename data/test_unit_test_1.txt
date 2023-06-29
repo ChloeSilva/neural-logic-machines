@@ -1,0 +1,10 @@
+in:
+edge(b, d).
+edge(b, a).
+edge(a, b).
+
+out:
+edge(b, d).
+edge(b, a).
+edge(d, b).
+edge(a, b).

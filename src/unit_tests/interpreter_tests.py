@@ -11,6 +11,7 @@ class TestInterpreter(unittest.TestCase):
         # Given
         problem = prob.Problem(
             max_predicates = [0, 2, 3],
+            max_body = 3,
             predicate_names = [[], 
                                ['male', 'female'],
                                ['sibling', 'brother', 'sister']],
@@ -64,6 +65,7 @@ class TestInterpreter(unittest.TestCase):
         
         problem = prob.Problem(
             max_predicates = [0, 2, 3],
+            max_body = 5,
             predicate_names = [[], 
                                ['male', 'female'],
                                ['sibling', 'brother', 'sister']],
@@ -92,6 +94,7 @@ class TestInterpreter(unittest.TestCase):
         # Given
         problem = prob.Problem(
             max_predicates = [0, 0, 2],
+            max_body = 5,
             predicate_names = [[], [], ['edge', 'connected']],
             knowledge_base = ['edge(X0, X1) :- edge(X1, X0).'],
             objects = ['a', 'b', 'c']
@@ -110,6 +113,7 @@ class TestInterpreter(unittest.TestCase):
         # Given
         problem = prob.Problem(
             max_predicates = [0, 2, 3],
+            max_body = 11,
             predicate_names = [[], 
                                ['male', 'female'], 
                                ['sibling', 'brother', 'sister']],
@@ -139,17 +143,18 @@ class TestInterpreter(unittest.TestCase):
 
         problem = prob.Problem(
             max_predicates = [0, 0, 2],
+            max_body = 5,
             predicate_names = [[], [], ['edge', 'connected']],
             knowledge_base = [],
             objects = ['a', 'b', 'c']
             )
 
-        solved_problem = prob.SolvedProblem(problem, weights)
+        problem.solution = weights
 
         threshold = 1
 
         # When
-        result = self.sut.weights_to_predicates(solved_problem, threshold)
+        result = self.sut.weights_to_predicates(problem, threshold)
 
         # Then
         self.assertEqual(result, ['edge(X0, X1) :- edge(X1, X0).'])
@@ -164,6 +169,7 @@ class TestInterpreter(unittest.TestCase):
 
         problem = prob.Problem(
             max_predicates = [0, 2, 3],
+            max_body = 11,
             predicate_names = [[], 
                                ['male', 'female'], 
                                ['sibling', 'brother', 'sister']],
@@ -171,12 +177,11 @@ class TestInterpreter(unittest.TestCase):
             objects = ['alice', 'bob', 'carol']
             )
         
-        solved_problem = prob.SolvedProblem(problem, weights)
-        
+        problem.solution = weights
         threshold = 1
 
         # When
-        result = self.sut.weights_to_predicates(solved_problem, threshold)
+        result = self.sut.weights_to_predicates(problem, threshold)
 
         # Then
         self.assertEqual(result, [

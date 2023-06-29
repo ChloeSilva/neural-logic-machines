@@ -36,27 +36,25 @@ class Interpreter():
         names = problem.predicate_names
         kb = problem.knowledge_base
         max = problem.max_predicates
+        max_body = problem.max_body
+
         internal_names = [len(n) for n in self.internal(names)]
-        output = [[0]*max[i]*len(
-            self.arch.generate_combinations(len(
-            self.arch.generate_permutations(i))*internal_names[i])) 
-            for i in range(len(max))]
+        output = [[0]*i for i in problem.arch.hidden_tensor_shape(max, max_body)]
         
         for rule in kb:
             head = self.get_head(rule, names)
             body = self.get_body(rule, names, head[0])
             perm = self.arch.generate_permutations(head[0])
             comb = self.arch.generate_combinations(
-                len(perm)*internal_names[head[0]])
+                len(perm)*internal_names[head[0]], max_body)
             comb_i = tuple([(self.p_index(n,head[0],max))*len(perm)+perm.index(p) 
                             for (n, p) in body])
             output[head[0]][head[1]*len(comb)+comb.index(comb_i)] = 1
         
         return np.array(output, dtype=object)
 
-    def weights_to_predicates(self, solved_problem, threshold):
-        problem = solved_problem.problem
-        weights = solved_problem.solution
+    def weights_to_predicates(self, problem, threshold):
+        weights = problem.solution
         internal_names = self.internal(problem.predicate_names)
         max = problem.max_predicates
 
@@ -64,7 +62,7 @@ class Interpreter():
         for i in range(len(max)):
             perm = self.arch.generate_permutations(i)
             comb = self.arch.generate_combinations(
-                len(perm)*len(internal_names[i]))
+                len(perm)*len(internal_names[i]), problem.max_body)
             
             tags = ['normal']*max[i]
             if i > 0: tags = ['expanded']*max[i-1] + tags
@@ -142,11 +140,9 @@ class Interpreter():
         name = ''
         i = 0
         while i < len(rule):
-            # get the index of the predicate
             while rule[i] != '(':
                 name += rule[i]
                 i += 1
-            # get the indices of the arguments
             arguments = ()
             while rule[i] != ')':
                 i += 2
@@ -164,5 +160,3 @@ class Interpreter():
             name = ''
 
         return body
-
-        

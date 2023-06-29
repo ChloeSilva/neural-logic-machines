@@ -1,0 +1,92 @@
+in:
+edge(a, b).
+
+out:
+edge(a, b).
+edge(b, a).
+
+in:
+edge(a, b).
+edge(b, c).
+edge(c, d).
+
+out:
+edge(a, b).
+edge(b, c).
+edge(c, d).
+edge(b, a).
+edge(c, b).
+edge(d, c).
+
+in:
+edge(c, d).
+
+out:
+edge(c, d).
+edge(d, c).
+
+in:
+edge(a, d).
+
+out:
+edge(a, d).
+edge(d, a).
+
+in:
+edge(b, d).
+edge(a, c).
+
+out:
+edge(b, d).
+edge(a, c).
+edge(d, b).
+edge(c, a).
+
+in:
+edge(b, a).
+
+out:
+edge(b, a).
+edge(a, b).
+
+in:
+edge(a, b).
+edge(b, a).
+edge(c, d).
+
+out:
+edge(a, b).
+edge(b, a).
+edge(c, d).
+edge(d, c).
+
+in:
+edge(b, c).
+edge(c, b).
+edge(c, d).
+
+out:
+edge(b, c).
+edge(c, b).
+edge(c, d).
+edge(d, c).
+
+in:
+edge(d, a).
+
+out:
+edge(d, a).
+edge(a, d).
+
+in:
+edge(a, b).
+edge(a, c).
+edge(a, d).
+
+out:
+edge(a, b).
+edge(a, c).
+edge(a, d).
+edge(b, a).
+edge(c, a).
+edge(d, a).

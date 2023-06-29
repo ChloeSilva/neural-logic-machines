@@ -42,9 +42,11 @@ class TestArchitecture(unittest.TestCase):
         # Given
         predicates = np.array([[0, 0, 1, 0],
                           [0, 1, 0, 0]])
+        
+        max_body = 11
 
         # When
-        result = self.sut.select_body(predicates)
+        result = self.sut.select_body(predicates, max_body)
 
         # Then
         self.assertTrue(self.same_np_arrays(result, [
@@ -60,8 +62,10 @@ class TestArchitecture(unittest.TestCase):
                           [[0, 1], [1, 0]],
                           [[1, 1], [1, 1]]])
         
+        max_body = 7
+        
         # When
-        result = self.sut.select_body(predicates)
+        result = self.sut.select_body(predicates, max_body)
 
         # Then
         self.assertTrue(self.same_np_arrays(result, [
@@ -118,6 +122,17 @@ class TestArchitecture(unittest.TestCase):
              np.array([[1, 0, 1, 1], 
                        [0, 1, 0, 0]])).all())
         
+    def test_hidden_tensor_dims(self):
+        # Given
+        max_pred = [0, 2, 3]
+        max_body = 11
+
+        # When
+        result = self.sut.hidden_tensor_shape(max_pred, max_body)
+
+        # Then
+        self.assertEqual(result, [0, 64, 3072])
+        
     def test_bool_logic_simple(self):
         # Given
         premise = [np.array([0]),
@@ -132,19 +147,24 @@ class TestArchitecture(unittest.TestCase):
         weights = [np.array([0]*4),
                    np.array([0]*16),
                    np.array([0, 0, 0, 0, 1] + [0]*59 + [0]*64)]
+        
+        max_body = 4
 
         # When
-        result = self.sut.apply(weights, premise)
+        result = self.sut.apply(weights, premise, max_body)
 
         # Then
-        self.assertTrue((result[0] == np.array([0])).all())
-        self.assertTrue((result[1] == np.array([[1, 1, 1]])).all())
-        self.assertTrue((result[2] == np.array([[[0, 1, 0],
-                                                 [1, 0, 1],
-                                                 [0, 1, 0]],
-                                                [[0, 0, 0],
-                                                 [0, 0, 0],
-                                                 [0, 0, 0]]])).all())
+        self.assertTrue(
+            (np.round(result[0][0]) == np.array([0])).all())
+        self.assertTrue(
+            (np.round(result[1][0]) == np.array([[1, 1, 1]])).all())
+        self.assertTrue(
+            (np.round(result[2][0]) == np.array([[[0, 1, 0],
+                                               [1, 0, 1],
+                                               [0, 1, 0]],
+                                              [[0, 0, 0],
+                                               [0, 0, 0],
+                                               [0, 0, 0]]])).all())
     
     def test_bool_logic_complex(self):
         # Given
@@ -170,25 +190,30 @@ class TestArchitecture(unittest.TestCase):
         weights[2][1038] = 1
         weights[2][2077] = 1
 
+        max_body = 100
+
         # When
-        result = self.sut.apply(weights, premise)
+        result = self.sut.apply(weights, premise, max_body)
 
         # Then
-        self.assertTrue((result[0] == np.array([])).all())
-        self.assertTrue((result[1] == np.array([[0, 1, 0, 1],
-                                                [1, 0, 1, 0]])).all())
-        self.assertTrue((result[2] == np.array([[[0, 0, 0, 0],
-                                                 [0, 0, 0, 0],
-                                                 [0, 0, 0, 1],
-                                                 [0, 0, 1, 0]],
-                                                [[0, 1, 0, 0],
-                                                 [0, 0, 0, 0],
-                                                 [0, 0, 0, 1],
-                                                 [0, 0, 0, 0]],
-                                                [[0, 0, 0, 0],
-                                                 [1, 0, 0, 0],
-                                                 [0, 0, 0, 0],
-                                                 [0, 0, 1, 0]]])).all())
+        self.assertTrue(
+            (np.round(result[0]) == np.array([])).all())
+        self.assertTrue(
+            (np.round(result[1][0]) == np.array([[0, 1, 0, 1],
+                                              [1, 0, 1, 0]])).all())
+        self.assertTrue(
+            (np.round(result[2][0]) == np.array([[[0, 0, 0, 0],
+                                               [0, 0, 0, 0],
+                                               [0, 0, 0, 1],
+                                               [0, 0, 1, 0]],
+                                              [[0, 1, 0, 0],
+                                               [0, 0, 0, 0],
+                                               [0, 0, 0, 1],
+                                               [0, 0, 0, 0]],
+                                              [[0, 0, 0, 0],
+                                               [1, 0, 0, 0],
+                                               [0, 0, 0, 0],
+                                               [0, 0, 1, 0]]])).all())
 
     def same_np_arrays(self, x, y):
         if len(x) != len(y):

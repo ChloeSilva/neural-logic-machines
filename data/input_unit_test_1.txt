@@ -1,0 +1,6 @@
+male(dave).
+female(carol).
+sibling(dave, carol).
+sibling(carol, dave).
+brother(bob, alice).
+sister(alice, bob).

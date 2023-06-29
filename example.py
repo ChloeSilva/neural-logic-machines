@@ -1,8 +1,3 @@
-# Extending Neural Logic Machines
-Implementation of an extension to Neural Logic Machines [(NLM)](https://arxiv.org/pdf/1904.11694.pdf), adding interpretability and recursion.
-___
-Example use:
-```python
 from neural_logic_machines import problem
 
 problem = problem.Problem(
@@ -22,4 +17,3 @@ print(output)
 
 rules = problem.rules(threshold=0.9)
 print(rules)
-```
